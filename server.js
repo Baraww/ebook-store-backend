@@ -3,10 +3,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors'); // 1. Import cors
+const cloudinary = require('cloudinary').v2; // 1. ADD THIS LINE
 const { mongoURI } = require('./config');
 
 const app = express();
 const PORT = 5000;
+// 2. ADD THIS CONFIGURATION BLOCK
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 app.use(cors()); // 2. Use cors as middleware
 
 app.use(express.json());
