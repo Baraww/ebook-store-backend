@@ -27,6 +27,8 @@ app.use('/api/books', require('./routes/api/books'));
 
 // Use the users routes
 app.use('/api/users', require('./routes/api/users'));
+// Add this in server.js, below your other app.use statements
+app.use('/api/dashboard', require('./routes/api/dashboard'));
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
