@@ -9,6 +9,7 @@ const Book = require('../../models/Book');
 
 // @route   GET /api/books
 // @desc    Get all books
+// Inside routes/api/books.js
 router.get('/', async (req, res) => {
   try {
     const books = await Book.find().sort({ dateAdded: -1 });
@@ -31,6 +32,35 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Book not found' });
     }
     res.json(book);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+// Add this to routes/api/books.js
+
+// @route   GET /api/books/search
+// @desc    Search for books by title or author
+// @access  Public
+router.get('/search', async (req, res) => {
+  try {
+    const query = req.query.q; // Get the search term from the query parameter 'q'
+
+    if (!query) {
+      return res.json([]); // If no query, return an empty array
+    }
+
+    const books = await Book.find({
+      $or: [
+        // Use a regular expression for a case-insensitive partial match
+        { title: { $regex: query, $options: 'i' } },
+        { author: { $regex: query, $options: 'i' } },
+      ],
+    });
+
+    res.json(books);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -104,4 +134,26 @@ router.put('/:id', [auth, admin], async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+// routes/api/books.js
+// ... (your other imports and routes)
+
+// @route   GET /api/books/search
+// @desc    Search for books by title or author
+router.get('/search', async (req, res) => {
+  try {
+    const query = req.query.q;
+    if (!query) {
+      return res.json([]);
+    }
+
+    // This is the new, optimized query using the text index
+    const books = await Book.find({ $text: { $search: query } });
+
+    res.json(books);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;
